@@ -13,9 +13,9 @@ class Stock:
         self.price_end = float(price_end)
         self.return_pct = self.compute_return()
     
-    def compute_return(self):
+    def compute_return(self):  # Computes the percentage return for the stock.
     
-       # Computes the percentage return for the stock.
+      
        # Formula: ((price_end - price_start) / price_start) * 100
        # Returns 0.0 if price_start is not positive.
         
@@ -35,6 +35,9 @@ class Stock:
             'Return': self.return_pct
         }
 
+
+
+
 class StockAnalyzer:
     
     # Handles loading, validating, analyzing, and reporting stock data from a CSV file.
@@ -43,12 +46,12 @@ class StockAnalyzer:
         self.filepath = filepath
         self.stocks = []
         self.invalid_rows = []  # Added to track invalid rows
-        self.load_data()
+        self.read_csv_safe()
     
-    def load_data(self):
-        #
-      # Loads and validates data from the CSV file.
-      #   Creates Stock objects for valid rows where prices are positive.
+    def read_csv_safe(self):   # read and validates data from the CSV file.
+        
+      #  read and validates data from the CSV file.
+      #  Creates Stock objects for valid rows where prices are positive.
       #  Skips invalid rows and collects them for reporting.
     
         try:
@@ -85,9 +88,9 @@ class StockAnalyzer:
                             if any(c.isalpha() for c in price_start_str) or any(c.isalpha() for c in price_end_str):
                                 reason = "Invalid alphabets in PriceStart or PriceEnd"
                             else:
-                                reason = "Invalid numeric format in PriceStart or PriceEnd"
+                                reason = "Invalid numeric format in PriceStart or PriceEnd" #"Invalid numeric format in PriceStart or PriceEnd
                         print(f"Warning: Skipping invalid row: {row} - {reason}")
-                        self.invalid_rows.append({
+                        self.invalid_rows.append({ #Adding Values From Stock.CSV
                             'Stock': stock_name if 'Stock' in row else 'N/A',
                             'Sector': sector if 'Sector' in row else 'N/A',
                             'PriceStart': price_start_str if 'PriceStart' in row else 'N/A',
@@ -96,13 +99,15 @@ class StockAnalyzer:
                         })
         except FileNotFoundError:
             print(f"Error: File '{self.filepath}' not found.")
+
     
-    def get_all_results(self):
+    def process_all(self): #Applies compute_return to all rows, returns list of results. 
     
-       #  Returns a list of dictionaries containing data for all stocks.
+       # Returns a list of dictionaries containing data for all stocks.
        # Each dictionary includes stock details and computed return.
     
         return [stock.to_dict() for stock in self.stocks]
+
     
     def get_top_stocks(self, n=5):
     
@@ -111,9 +116,8 @@ class StockAnalyzer:
         sorted_stocks = sorted(self.stocks, key=lambda s: s.return_pct, reverse=True)
         return sorted_stocks[:n]
     
-    def aggregate_by_sector(self):
-        
-      #  Aggregates data by sector: computes average return and count of stocks per sector.
+    def aggregate_by_sector(self): #  Aggregates data by sector: computes average return and count of stocks per sector. 
+     
       #  Returns a dictionary: {sector: {'avg_return': float, 'count': int}}
         
         sector_data = defaultdict(lambda: {'total_return': 0.0, 'count': 0})
@@ -139,13 +143,12 @@ class StockAnalyzer:
         for entry in self.invalid_rows:
             print(f"{entry['Stock']:<15} | {entry['Sector']:<20} | {entry['PriceStart']:<12} | {entry['PriceEnd']:<10} | {entry['Reason']:<30}")
     
-    def print_details(self):
+    def print_report(self):       # Prints a detailed report to the console, including all stocks, top performers, sector summaries, and invalid entries.
         
-       # Prints a detailed report to the console, including all stocks, top performers, sector summaries, and invalid entries.
        # Separates computation (via helper methods) from printing for better modularity.
        # Compute data separately from printing
 
-        results = self.get_all_results()
+        results = self.process_all()
         top5 = self.get_top_stocks()
         sector_summary = self.aggregate_by_sector()
         
@@ -172,11 +175,11 @@ class StockAnalyzer:
         
         # Print invalid entries
         self.print_invalid_entries()
+
+
     
-    def export_csv(self, filename='stock_returns.csv'):
-        
-        # Exports the stock results to a CSV file.
-        
+    def export_csv(self, filename='stock_returns.csv'):      # Exports the stock results to a CSV file.
+    
         results = self.get_all_results()
         try:
             with open(filename, 'w', newline='') as file:
@@ -191,8 +194,6 @@ class StockAnalyzer:
 # Main execution with CLI support
 if __name__ == "__main__":
 
-
-
     # Set up argument parser for CLI options
     parser = argparse.ArgumentParser(description="Analyze stock data from a CSV file.")
     parser.add_argument('filepath', help="Path to the CSV file (e.g., E:\\PYTHON\\miniproject\\AviStock.csv)")
@@ -204,7 +205,7 @@ if __name__ == "__main__":
     if not analyzer.stocks:
         print("No valid data to process.")
     else:
-        analyzer.print_details()  # Updated method name for alignment
+        analyzer.print_report()  # Updated method name for alignment
         analyzer.export_csv(args.export)
 
         # In Concole type the location {python e:/PYTHON/miniproject/minipro.py E:\PYTHON\miniproject\AviStock.csv }
